@@ -8,12 +8,12 @@ namespace FESoftware
 {
     public class Analysis
     {
-        public static double[,] getShapeFunction(int element_Type, double[,] xsi, double[,] eta, double[,] zet)
+        public static double[,] getShapeFunction(double[,] xsi, double[,] eta, double[,] zet)
         {
-            int NumberofNodes = PreprocessingModelling.getElementNodesNumber(element_Type);
+            int NumberofNodes = PreprocessingModelling.getElementNodesNumber();
             int GaussianNumber = xsi.GetLength(0);
             double[,] ShapeFunction = new double[GaussianNumber, NumberofNodes];
-            if (NumberofNodes == 8)
+            if (GaussianNumber == 8)
             {
                 for(int i = 0; i < GaussianNumber; i++)
                 {
@@ -31,14 +31,13 @@ namespace FESoftware
             return ShapeFunction;
         }
 
-        public static double[,] getShapeFunctionDerivatives(int element_Type, double[,] xsi, double[,] eta, double[,] zet)
+        public static double[,] getShapeFunctionDerivatives(double[,] xsi, double[,] eta, double[,] zet)
         {
-            int NumberofNodes = PreprocessingModelling.getElementNodesNumber(element_Type);
             int GaussianNumber = xsi.GetLength(0);
-            double[,] ShapeFunctionDerivatives = new double[3 * NumberofNodes, GaussianNumber];
-            if (NumberofNodes == 8)
+            double[,] ShapeFunctionDerivatives = new double[3 * GaussianNumber, GaussianNumber];
+            if (GaussianNumber == 8)
             {
-                for (int i = 0; i < NumberofNodes; i++)
+                for (int i = 0; i < GaussianNumber; i++)
                 {
                     for (int j = 0; j < GaussianNumber; j++)
                     {
@@ -67,10 +66,10 @@ namespace FESoftware
             }
             return GaussianShapeFunctionDerivatives;
         }
-        public static double[,] getNodalCoordinates(int element_Type)
+        public static double[,] getNodalCoordinates()
         {
-            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber(element_Type);
-            int NumbersOfElements = PreprocessingModelling.getNumberOfElements(element_Type);
+            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber();
+            int NumbersOfElements = PreprocessingModelling.getNumberOfElements();
             double[,] NodalCoordinates = new double[NumbersOfElements * NumbersOfNodes, 3];
             for (int i = 0; i < NumbersOfElements * NumbersOfNodes; i++)
             {
@@ -81,9 +80,9 @@ namespace FESoftware
             return NodalCoordinates;
         }
 
-        public static double[,] getElementNodalCoordinates(int element_Type, int elementBeingCalculated, double[,] nodalCoordinates)
+        public static double[,] getElementNodalCoordinates(int elementBeingCalculated, double[,] nodalCoordinates)
         {
-            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber(element_Type);
+            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber();
             double[,] ElementNodalCoordinates = new double[NumbersOfNodes, 3];
             int j = 0;
             for (int i = elementBeingCalculated * NumbersOfNodes; i < (elementBeingCalculated + 1) * NumbersOfNodes; i++)
@@ -95,14 +94,14 @@ namespace FESoftware
             }
             return ElementNodalCoordinates;
         }
-        public static double[,] getJacobian(int element_Type, double[,] nodalCoordinates)
+        public static double[,] getJacobian(double[,] nodalCoordinates)
         {
-            double[,] ShapeFunctionDerivatives = getShapeFunctionDerivatives(element_Type, MainInterface.XGaussianCoordinates, MainInterface.YGaussianCoordinates, MainInterface.ZGaussianCoordinates);
+            double[,] ShapeFunctionDerivatives = getShapeFunctionDerivatives(MainInterface.XGaussianCoordinates, MainInterface.YGaussianCoordinates, MainInterface.ZGaussianCoordinates);
             double[,] Jacobian = Accord.Math.Matrix.Dot(ShapeFunctionDerivatives, nodalCoordinates);
             return Jacobian;
         }
 
-        public static double[,] getGaussianJacobian(int element_Type, int gaussianBeingCalculated, double[,] jacobian)
+        public static double[,] getGaussianJacobian(int gaussianBeingCalculated, double[,] jacobian)
         {
             double[,] GaussianJacobian = new double[3, 3];
             int j = 0;
@@ -115,9 +114,9 @@ namespace FESoftware
             }
             return GaussianJacobian;
         }
-        public static double[,] getStrainDisplacementMatrix(int element_Type, double[,] shapeFunctionDerivativeWRTCoordinates)
+        public static double[,] getStrainDisplacementMatrix(double[,] shapeFunctionDerivativeWRTCoordinates)
         {
-            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber(element_Type);
+            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber();
             int DegreeOfFreedom = 3;
             double[,] StrainDisplacementMatrix = new double[6, NumbersOfNodes * DegreeOfFreedom]; //TODO: Account for 9 rows situations and other cases too.
             for (int i = 0; i < NumbersOfNodes; i ++)
@@ -184,9 +183,9 @@ namespace FESoftware
             return StiffnessMatrix;
         }
 
-        public static double[,] addGlobalStiffnessMatrix(int element_Type, int elementBeingCalculated, double[,] existingGlobalStiffnessMatrix, double[,] stiffnessMatrix)
+        public static double[,] addGlobalStiffnessMatrix(int elementBeingCalculated, double[,] existingGlobalStiffnessMatrix, double[,] stiffnessMatrix)
         {
-            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber(element_Type);
+            int NumbersOfNodes = PreprocessingModelling.getElementNodesNumber();
             int LocalStiffnessMatrixSize = stiffnessMatrix.GetLength(0);
             int[] GlobalStiffnessMatrixLocation = new int[LocalStiffnessMatrixSize];
             for (int i = 0; i < NumbersOfNodes; i ++)

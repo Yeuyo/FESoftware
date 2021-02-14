@@ -14,11 +14,12 @@ namespace FESoftware
     {
         int Nodes_Added;
         int NumberOfNodes;
-        public ElementCreation(int element_Type)
+        public static List<NodesInformation> CurrentEtopolNodes = new List<NodesInformation>();
+        public ElementCreation()
         {
             Nodes_Added = 0;
-            NumberOfNodes =  PreprocessingModelling.getElementNodesNumber(element_Type);
-            PreprocessingModelling.removeExcessEtopol(element_Type);
+            NumberOfNodes =  PreprocessingModelling.getElementNodesNumber();
+            PreprocessingModelling.removeExcessEtopol();
             InitializeComponent();
             dataGridView1.DataSource = MainInterface.Nodes.Select(vector => new { X = vector.X, Y = vector.Y, Z = vector.Z }).ToList();
             this.dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -35,13 +36,20 @@ namespace FESoftware
                 }
                 else
                 {
-                    MainInterface.Etopol.Add(dataGridView1.SelectedRows[0].Index);
-                    Nodes_Added += 1;
-                    if (Nodes_Added == NumberOfNodes)
+                    int selectedRowIndex = dataGridView1.SelectedRows[0].Index;
+                    if (!CurrentEtopolNodes.Contains(new NodesInformation(MainInterface.Nodes[selectedRowIndex].X, MainInterface.Nodes[selectedRowIndex].Y, MainInterface.Nodes[selectedRowIndex].Z)))
                     {
-                        ElementMaterialSelection addElementMaterial = new ElementMaterialSelection();
-                        addElementMaterial.ShowDialog();
-                        Nodes_Added = 0;
+                        CurrentEtopolNodes.Add(new NodesInformation(MainInterface.Nodes[selectedRowIndex].X, MainInterface.Nodes[selectedRowIndex].Y, MainInterface.Nodes[selectedRowIndex].Z));
+                        MainInterface.Etopol.Add(selectedRowIndex);
+                        Nodes_Added += 1;
+                        if (Nodes_Added == NumberOfNodes)
+                        {
+                            ElementMaterialSelection addElementMaterial = new ElementMaterialSelection();
+                            addElementMaterial.ShowDialog();
+                            Nodes_Added = 0;
+                            CurrentEtopolNodes.Clear();
+                        }
+                        dataGridView2.DataSource = CurrentEtopolNodes.Select(vector => new { X = vector.X, Y = vector.Y, Z = vector.Z }).ToList();
                     }
                 }
             }
@@ -55,6 +63,13 @@ namespace FESoftware
                 MainInterface.Etopol.RemoveAt(MainInterface.Etopol.Count - Nodes_Added);
                 this.Close();
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            MainInterface.Etopol.RemoveAt(MainInterface.Etopol.Count - 1);
+            CurrentEtopolNodes.RemoveAt(CurrentEtopolNodes.Count - 1);
+            dataGridView2.DataSource = CurrentEtopolNodes.Select(vector => new { X = vector.X, Y = vector.Y, Z = vector.Z }).ToList();
         }
     }
 }

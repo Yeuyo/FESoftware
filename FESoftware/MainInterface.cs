@@ -12,7 +12,11 @@ namespace FESoftware
 {
     public partial class MainInterface : Form
     {
-        int Element_Type;
+        public enum ElementType
+        {
+            eight_Noded_Hexahedral
+        }
+        public static ElementType Element;
         public static List<NodesInformation> Nodes = new List<NodesInformation>();
         public static List<MaterialsInfo> Materials = new List<MaterialsInfo>();
         public static List<int> Etopol = new List<int>();
@@ -21,9 +25,8 @@ namespace FESoftware
         public static double[,] YGaussianCoordinates;
         public static double[,] ZGaussianCoordinates;
         public static double[] GaussianWeights;
-        public MainInterface(int element_Type)
+        public MainInterface()
         {
-            Element_Type = element_Type;
             InitializeComponent();
         }
 
@@ -36,12 +39,8 @@ namespace FESoftware
 
         private void addElementsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ElementCreation addElementForm = new ElementCreation(Element_Type);
+            ElementCreation addElementForm = new ElementCreation();
             addElementForm.ShowDialog();
-            //TODO: Show the etopol.
-            //dataGridView1.DataSource = Nodes.Select(vector => new { X = vector.X, Y = vector.Y, Z = vector.Z }).ToList(); // Consider using tree view so can show elements
-
-            //dataGridView2.DataSource = NodalCoordinates.Select(vector => new { X = Enumerable.Range(0, NodalCoordinates.GetLength(0)).Select(X => NodalCoordinates[X, 0]).ToArray(), Y = Enumerable.Range(0, NodalCoordinates.GetLength(0)).Select(X => NodalCoordinates[X, 1]).ToArray(), Z = Enumerable.Range(0, NodalCoordinates.GetLength(0)).Select(X => NodalCoordinates[X, 2]).ToArray() }).ToList();
         }
 
         private void materialsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -59,7 +58,7 @@ namespace FESoftware
         private void runAnalysisToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // TODO: Make sure you can't have free nodes (nodes that are not in element) when you run.
-            AnalysisSetup analysisSetup = new AnalysisSetup(Element_Type);
+            AnalysisSetup analysisSetup = new AnalysisSetup();
             analysisSetup.ShowDialog();
             dataGridView2.DataSource = MainInterface.Nodes.Select(vector => new { X = vector.X, Y = vector.Y, Z = vector.Z, XDisplacement = vector.XDisplacement, YDisplacement = vector.YDisplacement, ZDisplacement = vector.ZDisplacement }).ToList();
         }

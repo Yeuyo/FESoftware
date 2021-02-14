@@ -19,8 +19,8 @@ namespace FESoftware
 
         private void button1_Click(object sender, EventArgs e)
         {
-            int Element_Type = 0; // 0 is eight noded hexahedral
-            MainInterface mainForm = new MainInterface(Element_Type);
+            MainInterface.Element = MainInterface.ElementType.eight_Noded_Hexahedral;
+            MainInterface mainForm = new MainInterface();
             mainForm.ShowDialog();
             this.Close();
         }
